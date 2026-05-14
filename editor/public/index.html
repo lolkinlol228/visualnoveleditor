@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VN Editor</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+</head>
+<body>
+<div id="app">
+  <nav class="topnav">
+    <span class="logo">◈ VN Editor</span>
+    <button class="nav-btn active" data-tab="characters">Персонажи</button>
+    <button class="nav-btn" data-tab="backgrounds">Фоны</button>
+    <button class="nav-btn" data-tab="bgm">Музыка</button>
+    <button class="nav-btn" data-tab="story">Сюжет</button>
+    <button class="nav-btn" data-tab="locales">Языки</button>
+  </nav>
+
+  <!-- CHARACTERS TAB -->
+  <section id="tab-characters" class="tab-content active">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="panel-header">
+          <span>Персонажи</span>
+          <button class="btn-primary" id="btn-add-char">+ Добавить</button>
+        </div>
+        <div class="item-list" id="char-list"></div>
+      </div>
+      <div class="split-right" id="char-editor">
+        <div class="empty-state">Выберите персонажа или создайте нового</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKGROUNDS TAB -->
+  <section id="tab-backgrounds" class="tab-content">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="panel-header">
+          <span>Фоны</span>
+          <button class="btn-primary" id="btn-add-bg">+ Добавить</button>
+        </div>
+        <div class="item-list" id="bg-list"></div>
+      </div>
+      <div class="split-right" id="bg-editor">
+        <div class="empty-state">Выберите фон или создайте новый</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BGM TAB -->
+  <section id="tab-bgm" class="tab-content">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="panel-header">
+          <span>Треки</span>
+        </div>
+        <div class="item-list" id="bgm-list"></div>
+      </div>
+      <div class="split-right">
+        <div style="max-width:480px">
+          <h3 style="color:var(--accent2);margin-bottom:10px">Музыка / BGM</h3>
+          <p style="color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:20px">
+            Загрузите аудиофайлы (mp3, ogg, wav).<br>
+            В свойствах диалога, выбора, сцены и главы появится поле <strong>Музыка</strong> — выберите трек.<br>
+            Если в ноде не выбрана музыка — играет предыдущий трек. <strong>Остановить музыку</strong> — специальная опция в списке.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Загрузить трек</label>
+            <label class="upload-zone" id="bgm-upload-zone" style="cursor:pointer;display:block">
+              <i class="ph ph-music-note" style="font-size:28px;margin-bottom:6px"></i>
+              <span>Нажмите или перетащите mp3 / ogg / wav</span>
+              <input type="file" id="bgm-upload-input" accept=".mp3,.ogg,.wav,.flac" multiple style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY TAB -->
+  <section id="tab-story" class="tab-content">
+    <div class="story-toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Нарратив:</span>
+        <button class="btn-node" data-type="start"><i class="ph ph-play"></i> Старт</button>
+        <button class="btn-node" data-type="dialog"><i class="ph ph-chat-text"></i> Диалог</button>
+        <button class="btn-node" data-type="choice"><i class="ph ph-git-fork"></i> Выбор</button>
+        <button class="btn-node" data-type="scene"><i class="ph ph-film-strip"></i> Сцена</button>
+        <button class="btn-node" data-type="end"><i class="ph ph-stop-circle"></i> Конец</button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <span class="toolbar-label">Логика:</span>
+        <button class="btn-node" data-type="chapter"><i class="ph ph-book-open-text"></i> Глава</button>
+        <button class="btn-node" data-type="set_flag"><i class="ph ph-flag"></i> Флаг</button>
+        <button class="btn-node" data-type="branch_flag"><i class="ph ph-shuffle"></i> Ветка</button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <span class="toolbar-label">События:</span>
+        <button class="btn-node" data-type="achievement"><i class="ph ph-trophy"></i> Ачивка</button>
+        <button class="btn-node" data-type="gallery_cg"><i class="ph ph-image"></i> CG</button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <button class="btn-tool" id="btn-save-story"><i class="ph ph-floppy-disk"></i> Сохранить</button>
+        <button class="btn-tool" id="btn-export-json"><i class="ph ph-download-simple"></i> JSON</button>
+        <button class="btn-tool" id="btn-import-json"><i class="ph ph-upload-simple"></i> JSON</button>
+        <button class="btn-tool btn-highlight" id="btn-export-game"><i class="ph ph-package"></i> Экспорт</button>
+      </div>
+      <input type="file" id="import-file-input" accept=".json" style="display:none">
+    </div>
+    <div class="story-workspace">
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <div class="canvas-world" id="canvas-world"></div>
+        <svg class="svg-overlay" id="svg-overlay" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#7c6af7"/>
+            </marker>
+          </defs>
+          <g id="svg-connections"></g>
+          <g id="svg-drag-line" style="display:none">
+            <path id="drag-path" stroke="#7c6af7" stroke-width="2" fill="none" stroke-dasharray="6,3"/>
+          </g>
+        </svg>
+        <div class="canvas-hint">Колёсико — зум · Пробел+тащи — панорама · ПКМ — панорама</div>
+      </div>
+      <div class="props-panel" id="props-panel">
+        <div class="empty-state">Выберите узел</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCALES TAB -->
+  <section id="tab-locales" class="tab-content">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="panel-header"><span>Языки</span></div>
+        <div class="item-list" id="locales-list"></div>
+      </div>
+      <div class="split-right">
+        <div style="max-width:480px">
+          <h3 style="color:var(--accent2);margin-bottom:10px">Локализация</h3>
+          <p style="color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:20px">
+            Добавьте дополнительные языки для перевода истории.<br>
+            В редакторе нод появится переключатель языков — выбрав язык, вы будете редактировать переводы текста реплик, вопросов и заголовков, не затрагивая основной текст.<br><br>
+            <strong>Основной язык</strong> — текст в полях по умолчанию.<br>
+            <strong>Доп. язык</strong> — перевод хранится отдельно в каждой ноде.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Добавить язык (код ISO: en, de, ja, zh...)</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="locale-new-input" placeholder="en" style="flex:1;max-width:120px">
+              <button class="btn-primary" id="btn-add-locale"><i class="ph ph-plus"></i> Добавить</button>
+            </div>
+          </div>
+          <div id="locales-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay" style="display:none">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span id="modal-title">Диалог</span>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/api.js"></script>
+<script src="js/locales.js"></script>
+<script src="js/bgm.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/backgrounds.js"></script>
+<script src="js/node-editor.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

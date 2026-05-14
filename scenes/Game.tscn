@@ -1,0 +1,247 @@
+[gd_scene load_steps=2 format=3 uid="uid://game_scene_001"]
+
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
+
+[node name="Game" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_game")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch_mode = 6
+
+[node name="BGColor" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.04, 0.09, 1)
+
+[node name="Stage" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="CGOverlay" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch_mode = 6
+visible = false
+
+[node name="ChapterOverlay" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+
+[node name="ChapterBG" type="ColorRect" parent="ChapterOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.03, 0.09, 0.88)
+
+[node name="ChapterLabel" type="Label" parent="ChapterOverlay"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -48.0
+offset_bottom = 48.0
+text = ""
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.22, 0.74, 0.98, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NVLPanel" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+
+[node name="NVLBg" type="ColorRect" parent="NVLPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.03, 0.09, 0.92)
+
+[node name="NVLScroll" type="ScrollContainer" parent="NVLPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 40.0
+offset_right = -60.0
+offset_bottom = -64.0
+
+[node name="NVLContent" type="VBoxContainer" parent="NVLPanel/NVLScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="NVLNextBtn" type="Button" parent="NVLPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -56.0
+offset_right = -8.0
+offset_bottom = -8.0
+text = "Далее ▶"
+theme_override_font_sizes/font_size = 13
+
+[node name="DialogPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.75
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -10.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="CharName" type="Label" parent="DialogPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 36.0
+text = ""
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.77, 0.67, 1, 1)
+
+[node name="DialogText" type="Label" parent="DialogPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 38.0
+offset_right = -12.0
+offset_bottom = -44.0
+text = ""
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 3
+
+[node name="NextBtn" type="Button" parent="DialogPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -40.0
+offset_right = -8.0
+offset_bottom = -8.0
+text = "Далее ▶"
+theme_override_font_sizes/font_size = 13
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.75
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_right = 300.0
+offset_bottom = -20.0
+visible = false
+alignment = 2
+
+[node name="AchievementPopup" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -300.0
+offset_top = 12.0
+offset_right = -8.0
+offset_bottom = 96.0
+visible = false
+
+[node name="AchBG" type="Panel" parent="AchievementPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="AchTitle" type="Label" parent="AchievementPopup"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 28.0
+text = "Достижение разблокировано!"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.77, 0.67, 1, 1)
+
+[node name="AchName" type="Label" parent="AchievementPopup"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 30.0
+offset_right = -12.0
+offset_bottom = -8.0
+text = ""
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+
+[node name="BackBtn" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 90.0
+offset_bottom = 36.0
+text = "← Меню"
+theme_override_font_sizes/font_size = 12
