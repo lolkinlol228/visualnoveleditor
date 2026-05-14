@@ -427,6 +427,24 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .bgm-player-playing .bgm-player-name { color: var(--green); }
 .bgm-player-playing { border-color: var(--green); }
 
+/* Global BGM player in topnav */
+.topnav-player {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto; padding-left: 12px; border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.bgm-global-name {
+  font-size: 12px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 180px;
+}
+.topnav-player.is-playing .bgm-global-name { color: var(--green); }
+.bgm-volume-slider {
+  width: 72px; accent-color: var(--accent); cursor: pointer;
+  height: 4px; appearance: none; background: var(--bg4); border-radius: 2px;
+  outline: none;
+}
+
 /* BGM track card in Музыка tab */
 .bgm-track-card { display: flex; align-items: center; gap: 8px; cursor: default; }
 .bgm-track-card:hover { border-color: var(--border); background: var(--bg3); }

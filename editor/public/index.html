@@ -16,6 +16,13 @@
     <button class="nav-btn" data-tab="bgm">Музыка</button>
     <button class="nav-btn" data-tab="story">Сюжет</button>
     <button class="nav-btn" data-tab="locales">Языки</button>
+    <div class="topnav-player" id="bgm-player-global">
+      <button class="btn-icon neutral" id="bgm-global-play" title="Воспроизвести / Пауза"><i class="ph ph-play"></i></button>
+      <i class="ph ph-music-note" style="color:var(--text2);font-size:12px;flex-shrink:0"></i>
+      <span class="bgm-global-name" id="bgm-global-name">— нет трека —</span>
+      <i class="ph ph-speaker-simple-high" style="color:var(--text2);font-size:12px;flex-shrink:0"></i>
+      <input type="range" id="bgm-global-volume" class="bgm-volume-slider" min="0" max="1" step="0.01" value="0.8">
+    </div>
   </nav>
 
   <!-- CHARACTERS TAB -->

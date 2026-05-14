@@ -1,6 +1,8 @@
-// BGM module — manages list of uploaded background music files
+// BGM module — track library + global editor player
 const BGM = (() => {
-  let files = []; // [{ file, name, url }]
+  let files = [];
+
+  // ---- Library ----
 
   async function load() {
     try { files = await api.getBgmList(); if (!Array.isArray(files)) files = []; }
@@ -9,16 +11,100 @@ const BGM = (() => {
 
   function getAll() { return files; }
 
-  // Build <option> elements for a BGM selector
-  // selectedUrl: current node.bgm_url value
   function buildSelect(selectedUrl) {
-    const opts = [`<option value="">— музыка без изменений —</option>`,
-                  `<option value="__stop__"${selectedUrl === '__stop__' ? ' selected' : ''}>⏹ Остановить музыку</option>`];
+    const opts = [
+      `<option value="">— музыка без изменений —</option>`,
+      `<option value="__stop__"${selectedUrl === '__stop__' ? ' selected' : ''}>⏹ Остановить музыку</option>`
+    ];
     files.forEach(f => {
       opts.push(`<option value="${escH(f.url)}"${f.url === selectedUrl ? ' selected' : ''}>${escH(f.name || f.file)}</option>`);
     });
     return opts.join('');
   }
+
+  // ---- Global player (topnav) ----
+
+  let audio       = null;   // HTMLAudioElement
+  let currentUrl  = '';     // url currently loaded / playing
+  let isPlaying   = false;
+  let volume      = 0.8;
+
+  function _trackName(url) {
+    if (!url || url === '__stop__') return '— нет трека —';
+    const f = files.find(f => f.url === url);
+    return f ? (f.name || f.file) : url.split('/').pop();
+  }
+
+  function _updateUI() {
+    const btn  = document.getElementById('bgm-global-play');
+    const name = document.getElementById('bgm-global-name');
+    const wrap = document.getElementById('bgm-player-global');
+    if (name) name.textContent = _trackName(currentUrl);
+    if (btn)  btn.querySelector('i').className = isPlaying ? 'ph ph-pause' : 'ph ph-play';
+    if (wrap) wrap.classList.toggle('is-playing', isPlaying);
+  }
+
+  // Called when user selects a node — mirrors game BGM logic
+  function setNodeBgm(url) {
+    if (!url) return;                 // empty = inherit, keep playing
+    if (url === '__stop__') {
+      if (audio) { audio.pause(); audio = null; }
+      currentUrl = '';
+      isPlaying  = false;
+      _updateUI();
+      return;
+    }
+    if (url === currentUrl) return;   // same track — don't restart
+    currentUrl = url;
+    if (isPlaying) {
+      if (audio) audio.pause();
+      audio = new Audio(url);
+      audio.volume = volume;
+      audio.loop   = true;
+      audio.play().catch(() => {});
+    }
+    _updateUI();
+  }
+
+  function play() {
+    if (!currentUrl) return;
+    if (!audio) {
+      audio = new Audio(currentUrl);
+      audio.volume = volume;
+      audio.loop   = true;
+    }
+    audio.play().catch(() => {});
+    isPlaying = true;
+    _updateUI();
+  }
+
+  function pause() {
+    if (audio) audio.pause();
+    isPlaying = false;
+    _updateUI();
+  }
+
+  function setVolume(v) {
+    volume = v;
+    if (audio) audio.volume = v;
+  }
+
+  function initPlayer() {
+    const playBtn = document.getElementById('bgm-global-play');
+    const volEl   = document.getElementById('bgm-global-volume');
+    if (playBtn) {
+      playBtn.addEventListener('click', () => {
+        if (isPlaying) pause(); else play();
+      });
+    }
+    if (volEl) {
+      volEl.value = volume;
+      volEl.addEventListener('input', () => setVolume(parseFloat(volEl.value)));
+    }
+    _updateUI();
+  }
+
+  // ---- BGM tab list render ----
 
   let previewAudio = null;
 
@@ -47,7 +133,7 @@ const BGM = (() => {
         const icon = btn.querySelector('i');
         if (previewAudio && previewAudio._url === url) {
           if (previewAudio.paused) { previewAudio.play(); icon.className = 'ph ph-pause'; }
-          else { previewAudio.pause(); icon.className = 'ph ph-play'; }
+          else                     { previewAudio.pause(); icon.className = 'ph ph-play'; }
         } else {
           if (previewAudio) previewAudio.pause();
           el.querySelectorAll('.bgm-prev-btn i').forEach(i => i.className = 'ph ph-play');
@@ -74,5 +160,5 @@ const BGM = (() => {
     });
   }
 
-  return { load, getAll, buildSelect, render };
+  return { load, getAll, buildSelect, setNodeBgm, initPlayer, render };
 })();

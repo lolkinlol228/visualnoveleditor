@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   NodeEditor.init();
   await NodeEditor.loadStory();
 
-  // BGM tab initial render
+  BGM.initPlayer();
   BGM.render();
 
   // ---- Locale management UI ----

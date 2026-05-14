@@ -11,10 +11,6 @@ const NodeEditor = (() => {
   let connectStart = null;
   let dragMousePos = { x: 0, y: 0 };
 
-  // BGM playback state (persists across node selections)
-  let bgmAudio = null;
-  let bgmCurrentUrl = '';
-
   let canvasWrapper, canvasWorld, svgOverlay, svgConnections, svgDragLine, dragPath;
 
   function init() {
@@ -361,31 +357,22 @@ const NodeEditor = (() => {
     let html = `<div class="props-title">${typeLabel(n.type)}</div>`;
     html += Locales.buildLocaleBar();
 
-    // BGM helper for nodes that have it
+    // BGM selector for nodes that have it
     const bgmField = (types) => {
       if (!types.includes(n.type)) return '';
       const curUrl = n.bgm_url || '';
-      const isPlaying = bgmAudio && !bgmAudio.paused && bgmCurrentUrl === curUrl;
-      const trackName = BGM.getAll().find(f => f.url === curUrl)?.name || '';
-      const displayName = trackName || (curUrl && curUrl !== '__stop__' ? curUrl.split('/').pop() : '');
-      const playerHtml = (curUrl && curUrl !== '__stop__') ? `
-        <div class="bgm-mini-player${isPlaying ? ' bgm-player-playing' : ''}" id="bgm-player-bar">
-          <button class="btn-icon neutral" id="bgm-pp-btn" title="${isPlaying ? 'Пауза' : 'Воспроизвести'}">
-            <i class="ph ph-${isPlaying ? 'pause' : 'play'}"></i>
-          </button>
-          <span class="bgm-player-name">${escH(displayName)}</span>
-          <button class="btn-icon" id="bgm-stop-btn" title="Остановить"><i class="ph ph-stop"></i></button>
-        </div>` : '';
       return `<div class="form-group">
         <label class="form-label"><i class="ph ph-music-note"></i> Музыка</label>
         <div style="display:flex;gap:4px">
           <select class="form-select" id="pf-bgm" style="flex:1">${BGM.buildSelect(curUrl)}</select>
           <button class="btn-secondary btn-sm btn-icon neutral" id="pf-bgm-upload" title="Загрузить mp3/ogg/wav"><i class="ph ph-upload-simple"></i></button>
         </div>
-        ${playerHtml}
       </div>
       <input type="file" id="pf-bgm-file" accept=".mp3,.ogg,.wav,.flac" style="display:none">`;
     };
+
+    // Notify global player about this node's BGM
+    BGM.setNodeBgm(n.bgm_url || '');
 
     // Background selector helper
     const bgField = () => `<div class="form-group">
@@ -587,7 +574,7 @@ const NodeEditor = (() => {
     if (bgmSel) bgmSel.addEventListener('change', () => {
       n.bgm_url = bgmSel.value;
       autoSave();
-      renderProps(); // Rebuild to show/hide player
+      BGM.setNodeBgm(n.bgm_url);
     });
     const bgmUpBtn = document.getElementById('pf-bgm-upload');
     const bgmFile  = document.getElementById('pf-bgm-file');
@@ -602,32 +589,6 @@ const NodeEditor = (() => {
           autoSave(); renderProps(); showToast('Музыка загружена', 'success');
         } catch (err) { showToast('Ошибка: ' + err.message, 'error'); }
         e.target.value = '';
-      });
-    }
-    // BGM player controls
-    const bgmPpBtn  = document.getElementById('bgm-pp-btn');
-    const bgmStpBtn = document.getElementById('bgm-stop-btn');
-    if (bgmPpBtn) {
-      bgmPpBtn.addEventListener('click', () => {
-        const url = n.bgm_url || '';
-        if (!url || url === '__stop__') return;
-        if (bgmAudio && bgmCurrentUrl === url) {
-          if (bgmAudio.paused) bgmAudio.play(); else bgmAudio.pause();
-        } else {
-          if (bgmAudio) { bgmAudio.pause(); }
-          bgmAudio = new Audio(url);
-          bgmAudio.loop = true;
-          bgmCurrentUrl = url;
-          bgmAudio.play().catch(() => {});
-        }
-        renderProps();
-      });
-    }
-    if (bgmStpBtn) {
-      bgmStpBtn.addEventListener('click', () => {
-        if (bgmAudio) { bgmAudio.pause(); bgmAudio.currentTime = 0; }
-        bgmAudio = null; bgmCurrentUrl = '';
-        renderProps();
       });
     }
 

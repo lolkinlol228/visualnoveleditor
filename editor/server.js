@@ -33,8 +33,9 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, Date.now() + '_' + Math.random().toString(36).slice(2) + ext);
+    const ext  = path.extname(file.originalname).toLowerCase();
+    const base = path.basename(file.originalname, ext).replace(/[\/\\:*?"<>|]/g, '_').slice(0, 60);
+    cb(null, Date.now() + '_' + base + ext);
   }
 });
 const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
@@ -108,7 +109,7 @@ app.get('/api/bgm', (req, res) => {
     const files = fs.readdirSync(dir).filter(f => /\.(mp3|ogg|wav|flac)$/i.test(f));
     res.json(files.map(f => ({
       file: f,
-      name: f.replace(/^\d+_[\w]+(\.\w+)$/, 'Track$1').replace(/_/g, ' '),
+      name: f.replace(/^\d+_/, ''),   // strip timestamp prefix, keep original name
       url: `/uploads/bgm/${f}`
     })));
   } catch { res.json([]); }
