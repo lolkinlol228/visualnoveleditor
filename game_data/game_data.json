@@ -1,5 +1,99 @@
 {
-  "story": { "nodes": [], "edges": [] },
-  "characters": [],
-  "backgrounds": []
+  "story": {
+    "nodes": [
+      {
+        "id": "n_1778688751189",
+        "type": "start",
+        "x": -125,
+        "y": 241,
+        "character_id": "",
+        "emotion": "",
+        "background_id": "",
+        "text": "",
+        "question": "",
+        "choices": [],
+        "stage": []
+      },
+      {
+        "id": "n_1778901624163",
+        "type": "dialog",
+        "x": 585,
+        "y": 332,
+        "locales": {},
+        "background_id": "b_1778731460215",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "нейтральный",
+            "x": 13,
+            "scale": 45
+          }
+        ],
+        "speaker_id": "c_1778688757098",
+        "text": "о нет соси",
+        "bgm_url": "",
+        "nvl": false
+      },
+      {
+        "id": "n_1778901657371",
+        "type": "dialog",
+        "x": 178,
+        "y": 362,
+        "locales": {},
+        "background_id": "b_1778731460215",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "",
+            "x": 50,
+            "scale": 80
+          }
+        ],
+        "speaker_id": "c_1778688757098",
+        "text": "рабы ебаные",
+        "bgm_url": "",
+        "nvl": true
+      }
+    ],
+    "edges": [
+      {
+        "fromNode": "n_1778688751189",
+        "fromPort": "out",
+        "toNode": "n_1778901657371"
+      },
+      {
+        "fromNode": "n_1778901657371",
+        "fromPort": "out",
+        "toNode": "n_1778901624163"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c_1778688757098",
+      "arts": [
+        {
+          "emotion": "нейтральный",
+          "desc": "",
+          "url": "/uploads/characters/1778901602081_.png",
+          "gameUrl": "game_data/characters/1778901602081_.png"
+        }
+      ],
+      "name": "Юмико",
+      "description": "42 бартуха",
+      "meta": "любит писи"
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "b_1778731460215",
+      "name": "Новый фон",
+      "description": "",
+      "url": "/uploads/backgrounds/1778901615529_IMG_5350.jpg",
+      "gameUrl": "game_data/backgrounds/1778901615529_IMG_5350.jpg"
+    }
+  ],
+  "locales": [
+    "en"
+  ]
 }
