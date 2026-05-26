@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://main_scene_001"]
+[gd_scene load_steps=4 format=3 uid="uid://main_scene_001"]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Shader" path="res://shaders/vn_background_breeze.gdshader" id="2_breeze"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_breeze"]
+shader = ExtResource("2_breeze")
+shader_parameter/water_strength = 0.0022
+shader_parameter/grass_strength = 0.0035
+shader_parameter/breeze_speed = 0.55
+shader_parameter/shimmer_strength = 0.018
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -9,48 +17,372 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_main")
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="FallbackColor" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.055, 0.039, 0.102, 1)
+mouse_filter = 2
+color = Color(0.035, 0.025, 0.08, 1)
 
-[node name="GradientOverlay" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_breeze")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.09, 0.063, 0.165, 0.6)
+mouse_filter = 2
+stretch_mode = 6
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="CommandFrame" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.165
+anchor_right = 0.0
+anchor_bottom = 0.84
+offset_left = 64.0
+offset_right = 476.0
+mouse_filter = 2
+
+[node name="MenuGuide" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.17
+anchor_right = 0.0
+anchor_bottom = 0.845
+offset_left = 92.0
+offset_right = 96.0
+mouse_filter = 2
+color = Color(1, 0.46, 0.72, 1)
+
+[node name="MenuVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0
+anchor_top = 0.205
+anchor_right = 0.0
+anchor_bottom = 0.815
+offset_left = 104.0
+offset_right = 430.0
+theme_override_constants/separation = 9
+
+[node name="Eyebrow" type="Label" parent="MenuVBox"]
+layout_mode = 2
+text = "VISUAL NOVEL"
+theme_override_colors/font_color = Color(0.88, 0.82, 0.74, 0.78)
+theme_override_font_sizes/font_size = 12
+
+[node name="Title" type="Label" parent="MenuVBox"]
+layout_mode = 2
+text = "Летний маршрут"
+theme_override_colors/font_color = Color(1, 0.92, 0.82, 1)
+theme_override_colors/font_shadow_color = Color(0.08, 0.07, 0.12, 0.68)
+theme_override_colors/font_outline_color = Color(0.04, 0.035, 0.06, 0.88)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 36
+
+[node name="TitleRule" type="ColorRect" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(176, 3)
+mouse_filter = 2
+color = Color(0.95, 0.82, 0.68, 0.72)
+
+[node name="TitleSpacer" type="Control" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 26)
+
+[node name="NewGameButton" type="Button" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 40)
+focus_neighbor_bottom = NodePath("../LoadButton")
+text = "Новая игра"
+theme_override_font_sizes/font_size = 16
+
+[node name="LoadButton" type="Button" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 40)
+focus_neighbor_top = NodePath("../NewGameButton")
+focus_neighbor_bottom = NodePath("../GalleryButton")
+text = "Продолжить"
+theme_override_font_sizes/font_size = 16
+
+[node name="GalleryButton" type="Button" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 40)
+focus_neighbor_top = NodePath("../LoadButton")
+focus_neighbor_bottom = NodePath("../SettingsButton")
+text = "Галерея"
+theme_override_font_sizes/font_size = 16
+
+[node name="SettingsButton" type="Button" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 40)
+focus_neighbor_top = NodePath("../GalleryButton")
+focus_neighbor_bottom = NodePath("../ExitButton")
+text = "Настройки"
+theme_override_font_sizes/font_size = 16
+
+[node name="ExitButton" type="Button" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 40)
+focus_neighbor_top = NodePath("../SettingsButton")
+text = "Выход"
+theme_override_font_sizes/font_size = 16
+
+[node name="StatusSpacer" type="Control" parent="MenuVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 12)
+
+[node name="StatusLabel" type="Label" parent="MenuVBox"]
+layout_mode = 2
+text = ""
+theme_override_colors/font_color = Color(1, 0.78, 0.42, 0.9)
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3
+
+[node name="BuildLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -354.0
+offset_top = -48.0
+offset_right = -48.0
+offset_bottom = -22.0
+text = "summer route / prototype"
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.9, 0.84, 0.78, 0.46)
+theme_override_font_sizes/font_size = 12
+
+[node name="ModalShade" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.01, 0.045, 0.82)
+
+[node name="SettingsPanel" type="Panel" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -180.0
-offset_top = -100.0
-offset_right = 180.0
-offset_bottom = 100.0
-alignment = 1
+offset_left = -290.0
+offset_top = -194.0
+offset_right = 290.0
+offset_bottom = 194.0
 
-[node name="Title" type="Label" parent="VBox"]
-layout_mode = 3
+[node name="Title" type="Label" parent="SettingsPanel"]
+layout_mode = 1
 anchors_preset = -1
-text = "Visual Novel"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 42
-theme_override_colors/font_color = Color(0.88, 0.84, 1, 1)
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 62.0
+text = "Настройки"
+theme_override_colors/font_color = Color(1, 0.91, 0.48, 1)
+theme_override_font_sizes/font_size = 25
 
-[node name="Spacer" type="Control" parent="VBox"]
-layout_mode = 3
-custom_minimum_size = Vector2(0, 30)
+[node name="AudioGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 84.0
+offset_right = 552.0
+offset_bottom = 176.0
 
-[node name="PlayButton" type="Button" parent="VBox"]
-layout_mode = 3
-custom_minimum_size = Vector2(200, 52)
-text = "Играть"
-theme_override_font_sizes/font_size = 18
-name = "PlayButton"
+[node name="SystemGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 198.0
+offset_right = 552.0
+offset_bottom = 288.0
+
+[node name="AudioGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 94.0
+offset_right = 530.0
+offset_bottom = 118.0
+text = "Звук"
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="SystemGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 208.0
+offset_right = 530.0
+offset_bottom = 232.0
+text = "Экран"
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="MasterVolumeLabel" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 120.0
+offset_right = 530.0
+offset_bottom = 144.0
+text = "Громкость"
+theme_override_colors/font_color = Color(0.8, 0.96, 0.91, 0.92)
+theme_override_font_sizes/font_size = 15
+
+[node name="MasterVolumeSlider" type="HSlider" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 144.0
+offset_right = 530.0
+offset_bottom = 168.0
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 85.0
+
+[node name="WindowModeButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 240.0
+offset_right = 530.0
+offset_bottom = 280.0
+text = "Оконный режим"
+theme_override_font_sizes/font_size = 15
+
+[node name="CloseButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -156.0
+offset_top = -58.0
+offset_right = -28.0
+offset_bottom = -18.0
+text = "Готово"
+theme_override_font_sizes/font_size = 14
+
+[node name="GalleryPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+
+[node name="Title" type="Label" parent="GalleryPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 62.0
+text = "Галерея"
+theme_override_colors/font_color = Color(1, 0.91, 0.48, 1)
+theme_override_font_sizes/font_size = 25
+
+[node name="Scroll" type="ScrollContainer" parent="GalleryPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 84.0
+offset_right = -28.0
+offset_bottom = -78.0
+
+[node name="List" type="VBoxContainer" parent="GalleryPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="GalleryPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -156.0
+offset_top = -62.0
+offset_right = -28.0
+offset_bottom = -22.0
+text = "Закрыть"
+theme_override_font_sizes/font_size = 14
+
+[node name="LoadPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -220.0
+offset_right = 310.0
+offset_bottom = 220.0
+
+[node name="Title" type="Label" parent="LoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 62.0
+text = "Сохранения"
+theme_override_colors/font_color = Color(1, 0.91, 0.48, 1)
+theme_override_font_sizes/font_size = 25
+
+[node name="Scroll" type="ScrollContainer" parent="LoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 84.0
+offset_right = -28.0
+offset_bottom = -78.0
+
+[node name="List" type="VBoxContainer" parent="LoadPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="LoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -156.0
+offset_top = -62.0
+offset_right = -28.0
+offset_bottom = -22.0
+text = "Закрыть"
+theme_override_font_sizes/font_size = 14

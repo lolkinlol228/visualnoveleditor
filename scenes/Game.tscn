@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://game_scene_001"]
+[gd_scene load_steps=3 format=3 uid="uid://game_scene_001"]
 
 [ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
+[ext_resource type="Script" path="res://scripts/GearIcon.gd" id="2_gear_icon"]
 
 [node name="Game" type="Control"]
 layout_mode = 3
@@ -14,6 +15,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 stretch_mode = 6
 
 [node name="BGColor" type="ColorRect" parent="."]
@@ -21,6 +23,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 color = Color(0.05, 0.04, 0.09, 1)
 
 [node name="Stage" type="Control" parent="."]
@@ -35,6 +38,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 stretch_mode = 6
 visible = false
 
@@ -99,6 +103,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
 [node name="NVLNextBtn" type="Button" parent="NVLPanel"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -109,7 +114,7 @@ offset_left = -140.0
 offset_top = -56.0
 offset_right = -8.0
 offset_bottom = -8.0
-text = "Далее ▶"
+text = ""
 theme_override_font_sizes/font_size = 13
 
 [node name="DialogPanel" type="Panel" parent="."]
@@ -123,6 +128,7 @@ offset_left = 20.0
 offset_top = -10.0
 offset_right = -20.0
 offset_bottom = -20.0
+mouse_filter = 1
 
 [node name="CharName" type="Label" parent="DialogPanel"]
 layout_mode = 1
@@ -133,10 +139,10 @@ anchor_right = 1.0
 anchor_bottom = 0.0
 offset_left = 12.0
 offset_top = 8.0
-offset_right = -12.0
+offset_right = -60.0
 offset_bottom = 36.0
 text = ""
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 19
 theme_override_colors/font_color = Color(0.77, 0.67, 1, 1)
 
 [node name="DialogText" type="Label" parent="DialogPanel"]
@@ -149,12 +155,13 @@ anchor_bottom = 1.0
 offset_left = 12.0
 offset_top = 38.0
 offset_right = -12.0
-offset_bottom = -44.0
+offset_bottom = -16.0
 text = ""
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 20
 autowrap_mode = 3
 
 [node name="NextBtn" type="Button" parent="DialogPanel"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -165,8 +172,64 @@ offset_left = -120.0
 offset_top = -40.0
 offset_right = -8.0
 offset_bottom = -8.0
-text = "Далее ▶"
+text = ""
 theme_override_font_sizes/font_size = 13
+
+[node name="SaveBtn" type="Button" parent="DialogPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -230.0
+offset_top = 8.0
+offset_right = -158.0
+offset_bottom = 36.0
+tooltip_text = "Сохранить прогресс"
+text = "Сохр."
+theme_override_font_sizes/font_size = 12
+
+[node name="SettingsBtn" type="Button" parent="DialogPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -48.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 44.0
+tooltip_text = "Настройки"
+text = ""
+
+[node name="GearIcon" type="Control" parent="DialogPanel/SettingsBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_gear_icon")
+
+[node name="SaveNotify" type="Label" parent="DialogPanel"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -38.0
+offset_right = -128.0
+offset_bottom = -10.0
+text = "Сохранено"
+horizontal_alignment = 2
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.74, 1, 0.78, 1)
 
 [node name="ChoicesContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -181,6 +244,287 @@ offset_bottom = -20.0
 visible = false
 alignment = 2
 
+[node name="SettingsShade" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.015, 0.04, 0.82)
+
+[node name="SettingsPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -320.0
+offset_right = 260.0
+offset_bottom = 320.0
+
+[node name="SettingsTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 20.0
+offset_right = -28.0
+offset_bottom = 56.0
+text = "Настройки"
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="AudioGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 76.0
+offset_right = 492.0
+offset_bottom = 172.0
+
+[node name="TextGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 188.0
+offset_right = 492.0
+offset_bottom = 320.0
+
+[node name="SystemGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 336.0
+offset_right = 492.0
+offset_bottom = 432.0
+
+[node name="ProgressGroup" type="Panel" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 28.0
+offset_top = 448.0
+offset_right = 492.0
+offset_bottom = 566.0
+
+[node name="AudioGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 90.0
+offset_right = 464.0
+offset_bottom = 112.0
+text = "Звук"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="TextGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 202.0
+offset_right = 464.0
+offset_bottom = 224.0
+text = "Текст"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="SystemGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 350.0
+offset_right = 464.0
+offset_bottom = 372.0
+text = "Экран"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="ProgressGroupTitle" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 462.0
+offset_right = 464.0
+offset_bottom = 484.0
+text = "Прогресс"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="MasterVolumeLabel" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 118.0
+offset_right = 464.0
+offset_bottom = 138.0
+text = "Громкость"
+theme_override_font_sizes/font_size = 14
+
+[node name="MasterVolumeSlider" type="HSlider" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 140.0
+offset_right = 464.0
+offset_bottom = 166.0
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 85.0
+
+[node name="TextSpeedLabel" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 230.0
+offset_right = 464.0
+offset_bottom = 250.0
+text = "Скорость появления"
+theme_override_font_sizes/font_size = 14
+
+[node name="TextSpeedSlider" type="HSlider" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 252.0
+offset_right = 464.0
+offset_bottom = 278.0
+min_value = 10.0
+max_value = 120.0
+step = 1.0
+value = 55.0
+
+[node name="SkipSeenCheckBox" type="CheckBox" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 286.0
+offset_right = 464.0
+offset_bottom = 312.0
+text = "Пропускать только виденное"
+theme_override_font_sizes/font_size = 13
+
+[node name="WindowModeButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 380.0
+offset_right = 464.0
+offset_bottom = 420.0
+text = "Оконный режим"
+theme_override_font_sizes/font_size = 14
+
+[node name="SettingsSaveButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 492.0
+offset_right = 248.0
+offset_bottom = 532.0
+text = "Сохранить"
+theme_override_font_sizes/font_size = 13
+
+[node name="SettingsLoadButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 272.0
+offset_top = 492.0
+offset_right = 464.0
+offset_bottom = 532.0
+text = "Загрузить"
+theme_override_font_sizes/font_size = 13
+
+[node name="SettingsStatusLabel" type="Label" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 56.0
+offset_top = 540.0
+offset_right = 464.0
+offset_bottom = 562.0
+text = ""
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.74, 1, 0.78, 1)
+
+[node name="SettingsCloseButton" type="Button" parent="SettingsPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -58.0
+offset_right = -28.0
+offset_bottom = -18.0
+text = "Готово"
+theme_override_font_sizes/font_size = 13
+
+[node name="SaveLoadShade" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.015, 0.04, 0.72)
+
+[node name="SaveLoadPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -230.0
+offset_right = 310.0
+offset_bottom = 230.0
+
+[node name="SaveLoadTitle" type="Label" parent="SaveLoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = -28.0
+offset_bottom = 58.0
+text = "Сохранения"
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.91, 0.72, 1)
+
+[node name="SlotsScroll" type="ScrollContainer" parent="SaveLoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 74.0
+offset_right = -28.0
+offset_bottom = -70.0
+
+[node name="SlotsList" type="VBoxContainer" parent="SaveLoadPanel/SlotsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="SaveLoadCloseButton" type="Button" parent="SaveLoadPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -132.0
+offset_top = -52.0
+offset_right = -28.0
+offset_bottom = -16.0
+text = "Закрыть"
+theme_override_font_sizes/font_size = 13
+
 [node name="AchievementPopup" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = -1
@@ -188,7 +532,7 @@ anchor_left = 1.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
-offset_left = -300.0
+offset_left = -360.0
 offset_top = 12.0
 offset_right = -8.0
 offset_bottom = 96.0
@@ -200,6 +544,28 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
+[node name="AchIcon" type="TextureRect" parent="AchievementPopup"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 14.0
+offset_top = 18.0
+offset_right = 62.0
+offset_bottom = 66.0
+stretch_mode = 5
+
+[node name="AchIconFallback" type="Label" parent="AchievementPopup"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 14.0
+offset_top = 18.0
+offset_right = 62.0
+offset_bottom = 66.0
+text = "★"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.24, 0.88, 0.64, 1)
+
 [node name="AchTitle" type="Label" parent="AchievementPopup"]
 layout_mode = 1
 anchors_preset = -1
@@ -207,7 +573,7 @@ anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
-offset_left = 12.0
+offset_left = 78.0
 offset_top = 8.0
 offset_right = -12.0
 offset_bottom = 28.0
@@ -222,7 +588,7 @@ anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 12.0
+offset_left = 78.0
 offset_top = 30.0
 offset_right = -12.0
 offset_bottom = -8.0

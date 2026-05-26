@@ -4,8 +4,8 @@
       {
         "id": "n_1778688751189",
         "type": "start",
-        "x": -125,
-        "y": 241,
+        "x": -640,
+        "y": 65,
         "character_id": "",
         "emotion": "",
         "background_id": "",
@@ -15,32 +15,25 @@
         "stage": []
       },
       {
-        "id": "n_1778901624163",
+        "id": "n_1779685512871",
         "type": "dialog",
-        "x": 585,
-        "y": 332,
+        "x": -356,
+        "y": 255,
         "locales": {},
-        "background_id": "b_1778731460215",
-        "stage": [
-          {
-            "character_id": "c_1778688757098",
-            "emotion": "нейтральный",
-            "x": 13,
-            "scale": 45
-          }
-        ],
-        "speaker_id": "c_1778688757098",
-        "text": "о нет соси",
-        "bgm_url": "",
+        "background_id": "b_1779680006140",
+        "stage": [],
+        "speaker_id": "",
+        "text": "11",
+        "bgm_url": "__stop__",
         "nvl": false
       },
       {
-        "id": "n_1778901657371",
+        "id": "n_1779685527630",
         "type": "dialog",
-        "x": 178,
-        "y": 362,
+        "x": -56,
+        "y": 449,
         "locales": {},
-        "background_id": "b_1778731460215",
+        "background_id": "b_1779680006140",
         "stage": [
           {
             "character_id": "c_1778688757098",
@@ -50,35 +43,144 @@
           }
         ],
         "speaker_id": "c_1778688757098",
-        "text": "рабы ебаные",
-        "bgm_url": "",
-        "nvl": true
+        "text": "1212122",
+        "bgm_url": "__stop__",
+        "nvl": false
+      },
+      {
+        "id": "n_1779685548060",
+        "type": "choice",
+        "x": 291,
+        "y": -1,
+        "locales": {},
+        "background_id": "b_1779680006140",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "",
+            "x": 50,
+            "scale": 80
+          }
+        ],
+        "speaker_id": "",
+        "question": "сосал",
+        "bgm_url": "__stop__",
+        "choices": [
+          {
+            "id": "ch_1779685548060",
+            "text": "да"
+          },
+          {
+            "id": "ch_1779685548061",
+            "text": "нет"
+          },
+          {
+            "id": "ch_1779685562724",
+            "text": "минет"
+          }
+        ]
+      },
+      {
+        "id": "n_1779685572118",
+        "type": "dialog",
+        "x": 608,
+        "y": 253,
+        "locales": {},
+        "background_id": "b_1779680006140",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "",
+            "x": 50,
+            "scale": 80
+          }
+        ],
+        "speaker_id": "c_1778688757098",
+        "text": "нну типа соси",
+        "bgm_url": "__stop__",
+        "nvl": false
+      },
+      {
+        "id": "n_1779685607516",
+        "type": "dialog",
+        "x": 949,
+        "y": 20,
+        "locales": {},
+        "background_id": "b_1779680006140",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "",
+            "x": 50,
+            "scale": 80
+          }
+        ],
+        "speaker_id": "c_1778688757098",
+        "text": "нет так нет",
+        "bgm_url": "__stop__",
+        "nvl": false
+      },
+      {
+        "id": "n_1779685619744",
+        "type": "dialog",
+        "x": 649,
+        "y": -192,
+        "locales": {},
+        "background_id": "b_1779680006140",
+        "stage": [
+          {
+            "character_id": "c_1778688757098",
+            "emotion": "",
+            "x": 50,
+            "scale": 80
+          }
+        ],
+        "speaker_id": "",
+        "text": "круиа",
+        "bgm_url": "__stop__",
+        "nvl": false
       }
     ],
     "edges": [
       {
         "fromNode": "n_1778688751189",
         "fromPort": "out",
-        "toNode": "n_1778901657371"
+        "toNode": "n_1779685512871"
       },
       {
-        "fromNode": "n_1778901657371",
+        "fromNode": "n_1779685512871",
         "fromPort": "out",
-        "toNode": "n_1778901624163"
+        "toNode": "n_1779685527630"
+      },
+      {
+        "fromNode": "n_1779685527630",
+        "fromPort": "out",
+        "toNode": "n_1779685548060"
+      },
+      {
+        "fromNode": "n_1779685548060",
+        "fromPort": "choice",
+        "choiceIndex": 2,
+        "toNode": "n_1779685572118"
+      },
+      {
+        "fromNode": "n_1779685548060",
+        "fromPort": "choice",
+        "choiceIndex": 1,
+        "toNode": "n_1779685607516"
+      },
+      {
+        "fromNode": "n_1779685548060",
+        "fromPort": "choice",
+        "choiceIndex": 0,
+        "toNode": "n_1779685619744"
       }
     ]
   },
   "characters": [
     {
       "id": "c_1778688757098",
-      "arts": [
-        {
-          "emotion": "нейтральный",
-          "desc": "",
-          "url": "/uploads/characters/1778901602081_.png",
-          "gameUrl": "game_data/characters/1778901602081_.png"
-        }
-      ],
+      "arts": [],
       "name": "Юмико",
       "description": "42 бартуха",
       "meta": "любит писи"
@@ -91,6 +193,13 @@
       "description": "",
       "url": "/uploads/backgrounds/1778901615529_IMG_5350.jpg",
       "gameUrl": "game_data/backgrounds/1778901615529_IMG_5350.jpg"
+    },
+    {
+      "id": "b_1779680006140",
+      "name": "фон 1 ночь",
+      "description": "",
+      "url": "/uploads/backgrounds/1779680008992_Ð¡Ð³ÐµÐ½ÐµÑÐ¸ÑÐ¾Ð²Ð°Ð½Ð½Ð¾Ðµ Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ 1.png",
+      "gameUrl": "game_data/backgrounds/1779680008992_Ð¡Ð³ÐµÐ½ÐµÑÐ¸ÑÐ¾Ð²Ð°Ð½Ð½Ð¾Ðµ Ð¸Ð·Ð¾Ð±ÑÐ°Ð¶ÐµÐ½Ð¸Ðµ 1.png"
     }
   ],
   "locales": [

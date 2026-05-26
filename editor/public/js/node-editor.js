@@ -173,6 +173,13 @@ const NodeEditor = (() => {
       </div></div>`;
   }
 
+  function resolveCgEditorUrl(n) {
+    const bgs = Backgrounds.getAll();
+    const bg = bgs.find(b => b.id === n.cg_background_id);
+    if (bg && bg.url) return bg.url;
+    return n.cg_url || '';
+  }
+
   function buildNodeContent(el, n)  { el.innerHTML = buildNodeHTML(n); bindPortEvents(el, n); }
   function updateNodeContent(el, n) {
     el.innerHTML = buildNodeHTML(n);
@@ -218,9 +225,12 @@ const NodeEditor = (() => {
         <li><span class="choice-label">Иначе</span><span class="port port-out port-choice port-branch" data-node="${n.id}" data-port="choice" data-ci="1"></span></li>
       </ul>`;
     } else if (n.type === 'achievement') {
-      body = `<div class="node-preview">${escH(locText('achievement_name') || n.achievement_id || '— без названия —')}</div>`;
+      const icon = n.achievement_icon_url ? `<img class="node-asset-thumb node-ach-thumb" src="${escH(n.achievement_icon_url)}" alt="">` : '<div class="node-ach-fallback"><i class="ph ph-trophy"></i></div>';
+      body = `<div class="node-asset-row">${icon}<div class="node-preview">${escH(locText('achievement_name') || n.achievement_id || '— без названия —')}</div></div>`;
     } else if (n.type === 'gallery_cg') {
-      body = `<div class="node-preview">${escH(locText('cg_name') || n.cg_id || '— CG изображение —')}</div>`;
+      const cgUrl = resolveCgEditorUrl(n);
+      const thumb = cgUrl ? `<img class="node-asset-thumb node-cg-thumb" src="${escH(cgUrl)}" alt="">` : '<div class="node-cg-empty"><i class="ph ph-image"></i></div>';
+      body = `<div class="node-asset-row">${thumb}<div class="node-preview">${escH(locText('cg_name') || n.cg_id || '— CG изображение —')}</div></div>`;
     }
 
     const hasIn  = n.type !== 'start';
@@ -351,6 +361,7 @@ const NodeEditor = (() => {
     const chars  = Characters.getAll();
     const bgs    = Backgrounds.getAll();
     const bgOpts = bgs.map(b => `<option value="${b.id}" ${b.id === n.background_id ? 'selected' : ''}>${escH(b.name)}</option>`).join('');
+    const cgBgOpts = bgs.map(b => `<option value="${b.id}" ${b.id === n.cg_background_id ? 'selected' : ''}>${escH(b.name)}</option>`).join('');
     const isLocale = !!Locales.getCurrent();
     const locText  = (key) => Locales.getText(n, key);
 
@@ -510,6 +521,7 @@ const NodeEditor = (() => {
       </div>`;
 
     } else if (n.type === 'achievement') {
+      const achIconPreview = n.achievement_icon_url ? `<img src="${escH(n.achievement_icon_url)}" class="asset-preview-icon" alt="">` : '<div class="asset-preview-icon asset-preview-fallback"><i class="ph ph-trophy"></i></div>';
       html += `<div class="form-group">
         <label class="form-label">ID достижения</label>
         <input class="form-input" id="pf-ach-id" value="${escH(n.achievement_id || '')}" placeholder="found_key" ${isLocale ? 'disabled' : ''}>
@@ -521,10 +533,16 @@ const NodeEditor = (() => {
       <div class="form-group">
         <label class="form-label">${isLocale ? `Описание [${Locales.getCurrent().toUpperCase()}]` : 'Описание'}</label>
         <textarea class="form-textarea" id="pf-ach-desc" rows="2">${escH(locText('achievement_desc'))}</textarea>
-      </div>`;
+      </div>
+      ${!isLocale ? `<div class="form-group">
+        <label class="form-label">Иконка</label>
+        <div class="asset-picker-row">${achIconPreview}<div class="upload-zone asset-upload-zone" id="pf-ach-icon-upload"><i class="ph ph-upload-simple"></i> ${n.achievement_icon_url ? 'Заменить иконку' : 'Загрузить иконку'}</div></div>
+        <input type="file" id="pf-ach-icon-file" accept="image/*" style="display:none">
+      </div>` : ''}`;
 
     } else if (n.type === 'gallery_cg') {
-      const cgPreview = n.cg_url ? `<img src="${n.cg_url}" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:140px;object-fit:cover">` : '';
+      const cgUrl = resolveCgEditorUrl(n);
+      const cgPreview = cgUrl ? `<img src="${escH(cgUrl)}" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:140px;object-fit:cover">` : '';
       html += `<div class="form-group">
         <label class="form-label">ID изображения</label>
         <input class="form-input" id="pf-cg-id" value="${escH(n.cg_id || '')}" placeholder="cg_001" ${isLocale ? 'disabled' : ''}>
@@ -533,7 +551,12 @@ const NodeEditor = (() => {
         <label class="form-label">${isLocale ? `Название [${Locales.getCurrent().toUpperCase()}]` : 'Название'}</label>
         <input class="form-input" id="pf-cg-name" value="${escH(locText('cg_name'))}">
       </div>
-      ${!isLocale ? `${cgPreview}<div class="upload-zone" id="pf-cg-upload"><i class="ph ph-image"></i> ${n.cg_url ? 'Заменить изображение' : 'Загрузить изображение'}</div>
+      ${!isLocale ? `${cgPreview}<div class="form-group">
+        <label class="form-label">Взять уже загруженный фон</label>
+        <select class="form-select" id="pf-cg-bg"><option value="">— отдельное CG изображение —</option>${cgBgOpts}</select>
+        <div class="form-hint">Можно не загружать картинку второй раз: выбери любой фон из вкладки «Фоны».</div>
+      </div>
+      <div class="upload-zone" id="pf-cg-upload"><i class="ph ph-image"></i> ${n.cg_url ? 'Заменить отдельное CG' : 'Загрузить отдельное CG'}</div>
       <input type="file" id="pf-cg-file" accept="image/*" style="display:none">` : ''}`;
     }
 
@@ -702,12 +725,31 @@ const NodeEditor = (() => {
     if (achNameEl) achNameEl.addEventListener('input', () => { Locales.setText(n, 'achievement_name', achNameEl.value); refresh(); });
     const achDescEl = document.getElementById('pf-ach-desc');
     if (achDescEl) achDescEl.addEventListener('input', () => { Locales.setText(n, 'achievement_desc', achDescEl.value); autoSave(); });
+    const achIconUploadZone = document.getElementById('pf-ach-icon-upload');
+    const achIconFileInput  = document.getElementById('pf-ach-icon-file');
+    if (achIconUploadZone && achIconFileInput) {
+      achIconUploadZone.addEventListener('click', () => achIconFileInput.click());
+      achIconFileInput.addEventListener('change', async e => {
+        const file = e.target.files[0]; if (!file) return;
+        try {
+          const result = await api.uploadFile(file, 'achievements');
+          n.achievement_icon_url = result.url;
+          refresh(); renderProps(); showToast('Иконка ачивки загружена', 'success');
+        } catch (err) { showToast('Ошибка: ' + err.message, 'error'); }
+        e.target.value = '';
+      });
+    }
 
     // Gallery CG fields
     const cgIdEl = document.getElementById('pf-cg-id');
     if (cgIdEl) cgIdEl.addEventListener('input', () => { n.cg_id = cgIdEl.value; refresh(); });
     const cgNameEl = document.getElementById('pf-cg-name');
     if (cgNameEl) cgNameEl.addEventListener('input', () => { Locales.setText(n, 'cg_name', cgNameEl.value); refresh(); });
+    const cgBgEl = document.getElementById('pf-cg-bg');
+    if (cgBgEl) cgBgEl.addEventListener('change', () => {
+      n.cg_background_id = cgBgEl.value;
+      refresh(); renderProps();
+    });
     const cgUploadZone = document.getElementById('pf-cg-upload');
     const cgFileInput  = document.getElementById('pf-cg-file');
     if (cgUploadZone && cgFileInput) {
@@ -717,6 +759,7 @@ const NodeEditor = (() => {
         try {
           const result = await api.uploadFile(file, 'gallery');
           n.cg_url = result.url;
+          n.cg_background_id = '';
           refresh(); renderProps(); showToast('CG загружено', 'success');
         } catch (err) { showToast('Ошибка: ' + err.message, 'error'); }
         e.target.value = '';
@@ -833,8 +876,8 @@ const NodeEditor = (() => {
       chapter:     { title: '', background_id: '', bgm_url: '' },
       set_flag:    { flag_name: '', flag_value: 'true' },
       branch_flag: { flag_name: '', flag_value: 'true' },
-      achievement: { achievement_id: '', achievement_name: '', achievement_desc: '' },
-      gallery_cg:  { cg_id: '', cg_name: '', cg_url: '' },
+      achievement: { achievement_id: '', achievement_name: '', achievement_desc: '', achievement_icon_url: '' },
+      gallery_cg:  { cg_id: '', cg_name: '', cg_url: '', cg_background_id: '' },
     };
 
     const n = { ...base, ...(defaults[type] || {}) };

@@ -62,6 +62,7 @@ const Backgrounds = (() => {
       try {
         const res = await api.uploadFile(file, 'backgrounds');
         b.url = res.url;
+        await api.updateBackground(b.id, b);
         bgs = bgs.map(x => x.id === b.id ? b : x);
         renderEditor(b);
         showToast('Загружено', 'success');

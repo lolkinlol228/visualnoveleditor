@@ -159,6 +159,16 @@ html, body { height: 100%; background: var(--bg0); color: var(--text); font-fami
   transition: border-color .15s;
 }
 .upload-zone:hover { border-color: var(--accent); color: var(--accent2); }
+.asset-picker-row { display: flex; align-items: stretch; gap: 10px; }
+.asset-upload-zone { flex: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.asset-preview-icon {
+  width: 54px; height: 54px; flex-shrink: 0; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg3); object-fit: cover;
+}
+.asset-preview-fallback {
+  display: flex; align-items: center; justify-content: center;
+  color: #34d399; font-size: 24px;
+}
 
 /* LOCALE TAG PILL */
 .locale-tag-pill {
@@ -337,6 +347,17 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .node-header .node-id { font-size: 10px; color: var(--text2); margin-left: auto; }
 .node-body { padding: 8px 12px 10px; font-size: 12px; }
 .node-preview { color: var(--text2); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.node-asset-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.node-asset-row .node-preview { min-width: 0; }
+.node-asset-thumb, .node-ach-fallback, .node-cg-empty {
+  width: 34px; height: 34px; flex-shrink: 0; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.12); background: var(--bg3);
+}
+.node-asset-thumb { object-fit: cover; display: block; }
+.node-ach-fallback, .node-cg-empty {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text2); font-size: 17px;
+}
 .node-char-name { color: var(--text); font-weight: 600; font-size: 12px; margin-bottom: 2px; }
 .node-choice-list { list-style: none; padding: 0; }
 .node-choice-list li { font-size: 11px; color: var(--text2); padding: 2px 0; display: flex; align-items: center; gap: 4px; }

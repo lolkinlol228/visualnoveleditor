@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1071cep1v0bk"
-path="res://.godot/imported/1778901602081_.png-48abd70505f0f4b76f2e11aec1b3514d.ctex"
+uid="uid://b1852kyvhdqb8"
+path="res://.godot/imported/main_menu_summer_field_v3.png-954461a47318b02abcad13d1990a9d9b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game_data/characters/1778901602081_.png"
-dest_files=["res://.godot/imported/1778901602081_.png-48abd70505f0f4b76f2e11aec1b3514d.ctex"]
+source_file="res://game_data/backgrounds/main_menu_summer_field_v3.png"
+dest_files=["res://.godot/imported/main_menu_summer_field_v3.png-954461a47318b02abcad13d1990a9d9b.ctex"]
 
 [params]
 

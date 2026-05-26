@@ -5,15 +5,17 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3333;
+const PORT = Number(process.env.PORT) || 3333;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const DATA_DIR    = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const GAME_DATA_DIR = path.resolve(__dirname, '..', 'game_data');
+const MANAGED_UPLOAD_TYPES = new Set(['characters', 'backgrounds', 'bgm', 'gallery', 'achievements']);
 
-['data', 'uploads/characters', 'uploads/backgrounds', 'uploads/bgm', 'uploads/gallery'].forEach(d =>
+['data', 'uploads/characters', 'uploads/backgrounds', 'uploads/bgm', 'uploads/gallery', 'uploads/achievements'].forEach(d =>
   fs.mkdirSync(path.join(__dirname, d), { recursive: true })
 );
 
@@ -24,6 +26,195 @@ function readData(file) {
 }
 function writeData(file, data) {
   fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2), 'utf8');
+}
+
+function getManagedUploadInfo(url) {
+  if (!url || typeof url !== 'string') return null;
+  const normalized = url.replace(/\\/g, '/');
+  const match = normalized.match(/^\/uploads\/([^/]+)\/([^/]+)$/);
+  if (!match || !MANAGED_UPLOAD_TYPES.has(match[1])) return null;
+
+  const type = match[1];
+  const filename = path.basename(match[2]);
+  const typeDir = path.resolve(UPLOADS_DIR, type);
+  const filePath = path.resolve(typeDir, filename);
+  if (!filePath.startsWith(typeDir + path.sep)) return null;
+
+  return { type, filename, filePath };
+}
+
+function deleteFileWithImport(filePath) {
+  [filePath, `${filePath}.import`].forEach(target => {
+    try {
+      if (fs.existsSync(target)) fs.unlinkSync(target);
+    } catch (err) {
+      console.warn(`Failed to delete ${target}:`, err.message);
+    }
+  });
+}
+
+function collectReferencedAssetUrls() {
+  const urls = new Set();
+
+  const characters = readData('characters.json');
+  if (Array.isArray(characters)) {
+    characters.forEach(c => (c.arts || []).forEach(a => {
+      if (a && a.url) urls.add(a.url);
+    }));
+  }
+
+  const backgrounds = readData('backgrounds.json');
+  if (Array.isArray(backgrounds)) {
+    backgrounds.forEach(b => {
+      if (b && b.url) urls.add(b.url);
+    });
+  }
+
+  const story = readData('story.json');
+  if (story && Array.isArray(story.nodes)) {
+    story.nodes.forEach(n => {
+      if (n.bgm_url) urls.add(n.bgm_url);
+      if (n.cg_url) urls.add(n.cg_url);
+      if (n.achievement_icon_url) urls.add(n.achievement_icon_url);
+    });
+  }
+
+  return urls;
+}
+
+function deleteManagedAsset(url) {
+  const info = getManagedUploadInfo(url);
+  if (!info) return;
+
+  deleteFileWithImport(info.filePath);
+
+  const gameTypeDir = path.resolve(GAME_DATA_DIR, info.type);
+  const gameFilePath = path.resolve(gameTypeDir, info.filename);
+  if (gameFilePath.startsWith(gameTypeDir + path.sep)) deleteFileWithImport(gameFilePath);
+}
+
+function cleanupUnreferencedAssets(urls) {
+  const referenced = collectReferencedAssetUrls();
+  [...new Set(urls.filter(Boolean))].forEach(url => {
+    if (!referenced.has(url)) deleteManagedAsset(url);
+  });
+}
+
+function characterAssetUrls(character) {
+  return ((character && character.arts) || []).map(a => a && a.url).filter(Boolean);
+}
+
+function backgroundAssetUrls(background) {
+  return background && background.url ? [background.url] : [];
+}
+
+function getUploadPath(url) {
+  const info = getManagedUploadInfo(url);
+  return info ? info.filePath : null;
+}
+
+function buildGameExport() {
+  const story       = migrateStory(readData('story.json'));
+  const characters  = readData('characters.json');
+  const backgrounds = readData('backgrounds.json');
+  const locales     = readData('locales.json') || [];
+  const files       = [];
+
+  const remappedChars = characters.map(c => ({
+    ...c,
+    arts: (c.arts || []).map(a => ({
+      ...a,
+      gameUrl: a.url ? 'game_data/characters/' + path.basename(a.url) : null
+    }))
+  }));
+
+  const remappedBgs = backgrounds.map(b => ({
+    ...b,
+    gameUrl: b.url ? 'game_data/backgrounds/' + path.basename(b.url) : null
+  }));
+
+  const bgmFiles = new Set();
+  const cgFiles  = new Set();
+  const achievementFiles = new Set();
+  const remappedNodes = (story.nodes || []).map(n => {
+    const updated = { ...n };
+    if (n.bgm_url && n.bgm_url !== '__stop__' && n.bgm_url.startsWith('/uploads/')) {
+      const fname = path.basename(n.bgm_url);
+      bgmFiles.add(fname);
+      updated.bgm_game_url = 'game_data/bgm/' + fname;
+    }
+    if (n.type === 'gallery_cg') {
+      const sourceBg = n.cg_background_id ? backgrounds.find(b => b.id === n.cg_background_id) : null;
+      if (sourceBg && sourceBg.url && sourceBg.url.startsWith('/uploads/')) {
+        updated.cg_game_url = 'game_data/backgrounds/' + path.basename(sourceBg.url);
+      } else if (n.cg_url && n.cg_url.startsWith('/uploads/')) {
+        const fname = path.basename(n.cg_url);
+        cgFiles.add(fname);
+        updated.cg_game_url = 'game_data/gallery/' + fname;
+      }
+    }
+    if (n.type === 'achievement' && n.achievement_icon_url && n.achievement_icon_url.startsWith('/uploads/')) {
+      const fname = path.basename(n.achievement_icon_url);
+      achievementFiles.add(fname);
+      updated.achievement_icon_game_url = 'game_data/achievements/' + fname;
+    }
+    return updated;
+  });
+
+  characters.forEach(c => (c.arts || []).forEach(a => {
+    if (a.url) {
+      const fp = getUploadPath(a.url);
+      if (fp && fs.existsSync(fp)) {
+        files.push({ from: fp, to: path.join(GAME_DATA_DIR, 'characters', path.basename(fp)) });
+      }
+    }
+  }));
+
+  backgrounds.forEach(b => {
+    if (b.url) {
+      const fp = getUploadPath(b.url);
+      if (fp && fs.existsSync(fp)) {
+        files.push({ from: fp, to: path.join(GAME_DATA_DIR, 'backgrounds', path.basename(fp)) });
+      }
+    }
+  });
+
+  bgmFiles.forEach(fname => {
+    const fp = path.join(UPLOADS_DIR, 'bgm', fname);
+    if (fs.existsSync(fp)) files.push({ from: fp, to: path.join(GAME_DATA_DIR, 'bgm', fname) });
+  });
+
+  cgFiles.forEach(fname => {
+    const fp = path.join(UPLOADS_DIR, 'gallery', fname);
+    if (fs.existsSync(fp)) files.push({ from: fp, to: path.join(GAME_DATA_DIR, 'gallery', fname) });
+  });
+
+  achievementFiles.forEach(fname => {
+    const fp = path.join(UPLOADS_DIR, 'achievements', fname);
+    if (fs.existsSync(fp)) files.push({ from: fp, to: path.join(GAME_DATA_DIR, 'achievements', fname) });
+  });
+
+  const gameData = JSON.stringify({
+    story:       { ...story, nodes: remappedNodes },
+    characters:  remappedChars,
+    backgrounds: remappedBgs,
+    locales,
+  }, null, 2);
+
+  return { gameData, files };
+}
+
+function syncGameDataToDisk() {
+  const { gameData, files } = buildGameExport();
+  fs.mkdirSync(GAME_DATA_DIR, { recursive: true });
+  fs.writeFileSync(path.join(GAME_DATA_DIR, 'game_data.json'), gameData, 'utf8');
+
+  files.forEach(({ from, to }) => {
+    const target = path.resolve(to);
+    if (!target.startsWith(GAME_DATA_DIR + path.sep)) return;
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(from, target);
+  });
 }
 
 const storage = multer.diskStorage({
@@ -50,20 +241,28 @@ app.post('/api/characters', (req, res) => {
   const item = { id: 'c_' + Date.now(), arts: [], ...req.body };
   list.push(item);
   writeData('characters.json', list);
+  syncGameDataToDisk();
   res.json(item);
 });
 
 app.put('/api/characters/:id', (req, res) => {
   let list = readData('characters.json');
+  const oldItem = list.find(c => c.id === req.params.id);
+  if (!oldItem) return res.status(404).json({ error: 'character not found' });
   list = list.map(c => c.id === req.params.id ? { ...c, ...req.body, id: req.params.id } : c);
   writeData('characters.json', list);
+  cleanupUnreferencedAssets(characterAssetUrls(oldItem));
+  syncGameDataToDisk();
   res.json(list.find(c => c.id === req.params.id));
 });
 
 app.delete('/api/characters/:id', (req, res) => {
   let list = readData('characters.json');
+  const oldItem = list.find(c => c.id === req.params.id);
   list = list.filter(c => c.id !== req.params.id);
   writeData('characters.json', list);
+  if (oldItem) cleanupUnreferencedAssets(characterAssetUrls(oldItem));
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
@@ -75,25 +274,38 @@ app.post('/api/backgrounds', (req, res) => {
   const item = { id: 'b_' + Date.now(), ...req.body };
   list.push(item);
   writeData('backgrounds.json', list);
+  syncGameDataToDisk();
   res.json(item);
 });
 
 app.put('/api/backgrounds/:id', (req, res) => {
   let list = readData('backgrounds.json');
+  const oldItem = list.find(b => b.id === req.params.id);
+  if (!oldItem) return res.status(404).json({ error: 'background not found' });
   list = list.map(b => b.id === req.params.id ? { ...b, ...req.body, id: req.params.id } : b);
   writeData('backgrounds.json', list);
+  cleanupUnreferencedAssets(backgroundAssetUrls(oldItem));
+  syncGameDataToDisk();
   res.json(list.find(b => b.id === req.params.id));
 });
 
 app.delete('/api/backgrounds/:id', (req, res) => {
   let list = readData('backgrounds.json');
+  const oldItem = list.find(b => b.id === req.params.id);
   list = list.filter(b => b.id !== req.params.id);
   writeData('backgrounds.json', list);
+  if (oldItem) cleanupUnreferencedAssets(backgroundAssetUrls(oldItem));
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
 // ---- File upload ----
-app.post('/api/upload/:type', upload.single('file'), (req, res) => {
+app.post('/api/upload/:type', (req, res, next) => {
+  if (!MANAGED_UPLOAD_TYPES.has(req.params.type)) {
+    return res.status(400).json({ error: 'unsupported upload type' });
+  }
+  next();
+}, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'no file' });
   res.json({
     url: `/uploads/${req.params.type}/${req.file.filename}`,
@@ -118,8 +330,8 @@ app.get('/api/bgm', (req, res) => {
 // ---- BGM delete ----
 app.delete('/api/bgm/:file', (req, res) => {
   const fname = path.basename(req.params.file);
-  const fp = path.join(UPLOADS_DIR, 'bgm', fname);
-  if (fs.existsSync(fp)) fs.unlinkSync(fp);
+  deleteManagedAsset(`/uploads/bgm/${fname}`);
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
@@ -195,6 +407,7 @@ app.post('/api/import/locale', (req, res) => {
   }
 
   writeData('story.json', story);
+  syncGameDataToDisk();
   res.json({ ok: true, count });
 });
 
@@ -206,6 +419,7 @@ app.get('/api/locales', (req, res) => {
 app.post('/api/locales', (req, res) => {
   if (!Array.isArray(req.body)) return res.status(400).json({ error: 'expected array' });
   writeData('locales.json', req.body);
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
@@ -217,6 +431,7 @@ app.get('/api/story', (req, res) => {
 });
 app.post('/api/story', (req, res) => {
   writeData('story.json', req.body);
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
@@ -240,6 +455,7 @@ app.post('/api/import/json', (req, res) => {
   if (characters)  writeData('characters.json',  characters);
   if (backgrounds) writeData('backgrounds.json', backgrounds);
   if (Array.isArray(locales)) writeData('locales.json', locales);
+  syncGameDataToDisk();
   res.json({ ok: true });
 });
 
@@ -268,50 +484,8 @@ function migrateStory(story) {
 
 // ---- Export for game (ZIP) ----
 app.get('/api/export/game', (req, res) => {
-  const story      = migrateStory(readData('story.json'));
-  const characters = readData('characters.json');
-  const backgrounds = readData('backgrounds.json');
-  const locales    = readData('locales.json') || [];
-
-  // Remap character arts
-  const remappedChars = characters.map(c => ({
-    ...c,
-    arts: (c.arts || []).map(a => ({
-      ...a,
-      gameUrl: a.url ? 'game_data/characters/' + path.basename(a.url) : null
-    }))
-  }));
-
-  // Remap backgrounds
-  const remappedBgs = backgrounds.map(b => ({
-    ...b,
-    gameUrl: b.url ? 'game_data/backgrounds/' + path.basename(b.url) : null
-  }));
-
-  // Collect BGM & gallery files; remap node URLs
-  const bgmFiles = new Set();
-  const cgFiles  = new Set();
-  const remappedNodes = (story.nodes || []).map(n => {
-    const updated = { ...n };
-    if (n.bgm_url && n.bgm_url !== '__stop__' && n.bgm_url.startsWith('/uploads/')) {
-      const fname = path.basename(n.bgm_url);
-      bgmFiles.add(fname);
-      updated.bgm_game_url = 'game_data/bgm/' + fname;
-    }
-    if (n.type === 'gallery_cg' && n.cg_url && n.cg_url.startsWith('/uploads/')) {
-      const fname = path.basename(n.cg_url);
-      cgFiles.add(fname);
-      updated.cg_game_url = 'game_data/gallery/' + fname;
-    }
-    return updated;
-  });
-
-  const gameData = JSON.stringify({
-    story:       { ...story, nodes: remappedNodes },
-    characters:  remappedChars,
-    backgrounds: remappedBgs,
-    locales,
-  }, null, 2);
+  syncGameDataToDisk();
+  const { gameData, files } = buildGameExport();
 
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', 'attachment; filename=game_data.zip');
@@ -322,31 +496,19 @@ app.get('/api/export/game', (req, res) => {
 
   archive.append(gameData, { name: 'game_data/game_data.json' });
 
-  characters.forEach(c => (c.arts || []).forEach(a => {
-    if (a.url) {
-      const fp = path.join(__dirname, a.url.replace(/^\//, ''));
-      if (fs.existsSync(fp)) archive.file(fp, { name: 'game_data/characters/' + path.basename(fp) });
+  files.forEach(({ from, to }) => {
+    if (fs.existsSync(from)) {
+      archive.file(from, { name: 'game_data/' + path.relative(GAME_DATA_DIR, to).replace(/\\/g, '/') });
     }
-  }));
-
-  backgrounds.forEach(b => {
-    if (b.url) {
-      const fp = path.join(__dirname, b.url.replace(/^\//, ''));
-      if (fs.existsSync(fp)) archive.file(fp, { name: 'game_data/backgrounds/' + path.basename(fp) });
-    }
-  });
-
-  bgmFiles.forEach(fname => {
-    const fp = path.join(UPLOADS_DIR, 'bgm', fname);
-    if (fs.existsSync(fp)) archive.file(fp, { name: 'game_data/bgm/' + fname });
-  });
-
-  cgFiles.forEach(fname => {
-    const fp = path.join(UPLOADS_DIR, 'gallery', fname);
-    if (fs.existsSync(fp)) archive.file(fp, { name: 'game_data/gallery/' + fname });
   });
 
   archive.finalize();
 });
+
+try {
+  syncGameDataToDisk();
+} catch (err) {
+  console.warn('Initial game data sync failed:', err.message);
+}
 
 app.listen(PORT, () => console.log(`\n  VN Editor: http://localhost:${PORT}\n`));
